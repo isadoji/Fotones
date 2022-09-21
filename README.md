@@ -1,3 +1,5 @@
+# Fotones
+
 Numerical calculations from  prompt-photon production
 by magnetic fields in heavy-ion collisions
 Published in: Eur.Phys.J.A 56 (2020) 2, 53
