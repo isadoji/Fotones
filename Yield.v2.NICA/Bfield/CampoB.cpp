@@ -55,11 +55,13 @@ double_t aTime[tTotal] = {0.};
 
 
 double eByWave04[tTotal] = {};
+double VWave04[tTotal] = {};
 
 
 double_t particlesTotal0 = 0.,particlesTotal04 = 0.;
 double_t particlesTotal0_0 = 0.,particlesTotaleos0_0 = 0.;
 double_t eByWave0 = 0.;
+
 /*
 double_t eByWaveN04 = 0.;
 double_t eByWaveN07 = 0.;
@@ -73,7 +75,7 @@ Double_t norm0=0;
 Double_t norm04=0;
 
 void CampoB(){
-  for(int k=9; k<10; k++){
+  for(int k=10; k<11; k++){
     
     StylePlots();
 
@@ -81,9 +83,9 @@ void CampoB(){
 
     TChain mychain04("T");
 
-    mychain04.Add(TString::Format("outNtest%d.root",k));
+    mychain04.Add(TString::Format("prueba%d.root",k));
 
-    cout<<"Opening 0.4: "<<TString::Format("outNtest%d.root",k)<<endl;
+    cout<<"Opening 0.4: "<<TString::Format("prueba%d.root",k)<<endl;
     
     TChain mychainAuAu0("T");
     
@@ -101,11 +103,11 @@ void CampoB(){
     
     double_t nev=50;
     Double_t epsilon=0.000001;
-
+    double_t r = 6.38; //Au (fm)
     for(Int_t j=0; j<nevent04; j++){
       mychain04.GetEvent(j);
       if(particle.time == tSteps && particle.lastcoll==0 && particle.charge==1 && particle.id == 1){
-	particlesTotal04++;
+	particlesTotal04++; 
       }
       Float_t R = particle.R;
       if((particle.lastcoll==0 && particle.charge==1 && R>0 && particle.id==1) || (particle.lastcoll!=0 && particle.charge==1 && R>0 && particle.id==1)){
@@ -114,6 +116,8 @@ void CampoB(){
           Float_t Delta = std::abs(iTC-particle.time);
           if(Delta<0.001 && TMath::Finite(particle.eBy)==1 && particle.eBy!=0){
             eByWave04[iTime] += sqrt(particle.eBx*particle.eBx+particle.eBy*particle.eBy+particle.eBz*particle.eBz);
+            VWave04[iTime] += 2*iTime*TMath::Pi()*TMath::Power(r,2)*TMath::Power(particlesTotal04/(2*protonNumber2),2/3);
+          cout << eByWave04[iTime] << endl;
           }
         }
       }
@@ -142,15 +146,15 @@ void CampoB(){
   }
   cout<<"Time array done"<<endl;
 
-  /*
-  for( Int_t iTime = 0; iTime<tTotal; ++iTime){
-    //       cout << "eos 0  "<<   eByLWeos0[iTime] <<"  "<<  eByWaveeos0[iTime] <<"  "<< eByPointeos0[iTime]<<" " <<   aTime[iTime]  <<endl;
-    cout << aTime[iTime]  <<"    " <<eByWave04[iTime]<<endl;
+  
+  /*for( Int_t iTime = 0; iTime<tTotal; ++iTime){
+    //cout << "eos 0  "<<   eByLWeos0[iTime] <<"  "<<  eByWaveeos0[iTime] <<"  "<< eByPointeos0[iTime]<<" " <<   aTime[iTime]  <<endl;
+    cout << aTime[iTime]  <<"    " <<eByWave04[iTime]<<"    " <<VWave04[iTime]<< " " << endl;
   }
   */
   
   cout<<"Drawing plot"<<endl;
-  TCanvas *c1 =  new TCanvas("c1","",650,650);
+  TCanvas *c =  new TCanvas("c","",650,650);
   //    c1->SetFillStyle(4000);    
   //  gStyle->SetOptStat(false);
   //c1->SetRightMargin(0.0465116);
@@ -167,9 +171,9 @@ void CampoB(){
   gr->GetYaxis()->SetTitle("-B_{y}(0,0,0)/m_{#pi}^{2}");
   gr->GetXaxis()->CenterTitle(true);
   gr->GetYaxis()->CenterTitle(true);
-  gr->GetXaxis()->SetLimits(0.,5);
+  //gr->GetXaxis()->SetLimits(0.,5);
   gr->SetMinimum(0.);
-  gr->SetMaximum(0.4);
+ // gr->SetMaximum(0.4);
   gr->Draw("AL");
 
   TLegend *leg1 = new TLegend(0.45,0.47,0.80,0.89);
@@ -183,8 +187,25 @@ void CampoB(){
   leg1->SetHeader("Bi+Bi, b = 7 fm, L-W","L");
   leg1->AddEntry(gr,"#sqrt{S_{NN}} = 9 GeV","L");
   //   leg1->AddEntry(parteos0wave," Wave participants (eos 0)","L"); 
-  leg1->Draw();
+  //leg1->Draw();
   
+  TCanvas *c1 =  new TCanvas("c1","",650,650);
+  TGraph *gr1 = new TGraph(tTotal,aTime,VWave04); 
+  gr1->SetLineColor(2);
+  gr1->SetLineWidth(3);
+  gr1->SetMarkerColor(2);
+  gr1->SetMarkerStyle(21);
+  gr1->SetMarkerSize(1.5);
+  gr1->SetTitle("");
+  gr1->GetXaxis()->SetTitle("Time [fm]");
+  gr1->GetYaxis()->SetTitle("V [GeV-3]");
+  gr1->GetXaxis()->CenterTitle(true);
+  gr1->GetYaxis()->CenterTitle(true);
+  //gr1->GetXaxis()->SetLimits(0.,5);
+  gr1->SetMinimum(0.);
+ // gr1->SetMaximum(0.4);
+  gr1->Draw("AL");
+
    /* c1->SaveAs("BiBi_Mag_eBy_9.pdf");
     c1->SaveAs("BiBi_Mag_eBy_9.C");
     c1->SaveAs("BiBi_Mag_eBy_9.eps");
