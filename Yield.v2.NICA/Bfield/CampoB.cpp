@@ -41,8 +41,8 @@ void StylePlots(){
 
  int tI = 0.0;
 
-const float tSteps = 0.01;
-const int tTotal = 100;
+const float tSteps = 0.1;
+const int tTotal = 50;
 const int protonNumber1 = 166.0;
 const int protonNumber2 = 158.0;
 double_t aTime[tTotal] = {0.};
@@ -97,7 +97,7 @@ void CampoB(){
         for( int iTime = 0; iTime<=tTotal; ++iTime){
           float_t iTC = iTime*tSteps;
           Float_t Delta = std::abs(iTC-particle.time);
-          if(Delta < 0.001 && TMath::Finite(particle.eBy)==1 && particle.eBy!=0){
+          if(Delta < 0.01 && TMath::Finite(particle.eBy)==1 && particle.eBy!=0){
            cout << Delta<< endl;
             eByWave04[iTime] += sqrt(particle.eBx*particle.eBx+particle.eBy*particle.eBy+particle.eBz*particle.eBz);
           }
