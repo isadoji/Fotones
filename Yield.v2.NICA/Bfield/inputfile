@@ -1,0 +1,19 @@
+pro 197 79
+tar 197 79
+nev 10
+imp 0 6
+ecm 200
+tim 10 0.1
+eos 0
+
+#f13
+#f14
+f15
+f16
+f19
+f20
+#CTOption(41)=1
+#cto  41 1
+#Activate Hydro
+#cto  45 1
+xxx
