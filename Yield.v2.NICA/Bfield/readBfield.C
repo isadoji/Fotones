@@ -1,13 +1,9 @@
-Int_t nbin = 10;// #events
+Int_t nbin = 50;// #events
 Int_t xmin = 0;// #events
-Double_t xmax = 1;// #events
+Double_t xmax = 0.5;// #events
 Float_t norm = nbin/(TMath::Abs(xmin)+TMath::Abs(xmax));
 TH1F *eBH = new TH1F("eBH","", nbin,xmin,xmax);
 TH1F *VH = new TH1F("VH","", nbin,xmin,xmax);
-
-Double_t eB,V;
-Double_t rA = 6.38;//fm
-Double_t nucleons = 79;//Au
 
 const Int_t entriesT = 10000000;
 Int_t nT;
@@ -15,51 +11,62 @@ Double_t eBT[entriesT];
 Double_t VT[entriesT];
 Double_t timeT[entriesT];
 TTree* BfieldT = new  TTree("BfieldT","B field tree ");
+Double_t eB1,V1,tau1,n1;
+Double_t eB2,V2,tau2,n2;
+Double_t eB3,V3,tau3,n3;
+Double_t eB4,V4,tau4,n4;
+Double_t eB5,V5,tau5,n5;
+Double_t eB[50];
+Double_t V[50];
+Double_t tau[50];
+Int_t n[50];
 
-void Bfield(){
-  for(int k=10; k<11; k++){
-  gROOT->Reset();
-  TChain mychain("T");
-  mychain.Add(TString::Format("prueba%d.root",k));
-  struct particula_t 
-  {
-    Float_t time,X,Y,Z,E,Px,Py,Pz,Pt,P,m,id,isoespin,charge,lastcoll,numbercoll,history,frezetime,frezeX,frezeY,frezeZ,frezeE,frezePx,frezePy,frezePz,b,nspec,R,PXR,eBx,eBy,eBz,eByWave,eByPoint,dCb;
-  } PARTICLE;
-  particula_t  particle;
-  mychain.SetBranchAddress("particle",&particle);
-
-  BfieldT->Branch("nT",&nT,"nT/I");
-  BfieldT->Branch("eBT",eBT,"eBT[nT]/D");
-  BfieldT->Branch("VT",VT,"VT[nT]/D");
-  BfieldT->Branch("timeT",timeT,"timeT[nT]/D");
-
-
-  Int_t nevent = mychain.GetEntries();
-  cout << nevent << endl;
-  for(Int_t j=0; j<nevent; j++){
-    mychain.GetEvent(j);
-    if(TMath::Finite(particle.eBx) && TMath::Finite(particle.eBy) && TMath::Finite(particle.eBz) 
-      && particle.lastcoll==0) {
-    eBT[nT] = TMath::Sqrt((particle.eBx*particle.eBx)+(particle.eBy*particle.eBy)+(particle.eBz*particle.eBz));
-    VT[nT] = 2*TMath::Pi()*rA*rA*particle.time*TMath::Power((1/2*nucleons),2/3);
-    timeT[nT] = particle.time;
-    nT++;
-    eBH->Fill(particle.time,eBT[nT]);
-    VH->Fill(particle.time,VT[nT]);
-    }
-  }
-  
-  BfieldT->Fill();
-  char name[60];
+void readBfield(){
+char name[50];
   sprintf(name,"Bfield.root");
-  cout << " Writtiing file ->" << name << endl;
-  TFile fOut(name, "recreate");
-  fOut.cd();
-  BfieldT->Write();
-  }
+  cout << " Openning file " << name << endl;
+  TFile *file = new TFile(name);
 
+  TTree *BfieldT = (TTree*) file->Get("BfieldT");
+  BfieldT->SetBranchAddress("nT",&nT);
+  BfieldT->SetBranchAddress("eBT",eBT);
+  BfieldT->SetBranchAddress("VT",VT);
+  BfieldT->SetBranchAddress("timeT",timeT);
+
+Int_t entries = BfieldT->GetEntries();
+  for (Int_t i =0; i< entries;i++){
+    BfieldT->GetEntry(i);
+    for (Int_t j =0; j< nT;j++){
+    BfieldT->GetEntry(j);
+    //cout << timeT[j] << endl; 
+    for(Int_t k =0;k<=5;k++){
+    Float_t step = k*0.01; 
+    if(timeT[k] <= step){
+    eB[k] = eBT[k];
+    V[k] = VT[k];
+
+    tau[k] = step;
+    cout << step << " " << eB[k] << endl;
+    }
   
- 
+    }
+     
+  }
+  }
+  for(Int_t l =0;l<=50;l++){
+     cout << tau[l] << " " << eB[l] << " " << V[l] << endl;
+
+    eBH->Fill(tau[l],eB[l]);
+    VH->Fill(tau[l],V[l]);
+  }
+  
+  /*cout << tau1 << " " << eB1/n1 << " " << V1 << " " << n1 << endl;
+  cout << tau2 << " " << eB2 << " " << V2 << " " << n2 << endl;
+  cout << tau3 << " " << eB3 << " " << V3 << " " << n3 << endl;
+  cout << tau4 << " " << eB4 << " " << V4 << " " << n4 << endl;
+  cout << tau5 << " " << eB5 << " " << V5 << " " << n5 << endl;
+ */
+
   TCanvas* c1 = new TCanvas("c1","UrQMD test example",800,800);
   //gStyle->SetOptStat(false);
   c1->SetRightMargin(0.0465116);
@@ -79,8 +86,8 @@ void Bfield(){
   eBH->GetYaxis()->SetTitleSize(0.04);
   eBH->GetYaxis()->SetLabelSize(0.03);
   eBH->GetYaxis()->SetTitleOffset(1.2);
-    
-TCanvas* c2 = new TCanvas("c2","UrQMD test example",800,800);
+
+  TCanvas* c2 = new TCanvas("c2","UrQMD test example",800,800);
   gStyle->SetOptStat(false);
   c2->SetRightMargin(0.0465116);
   c2->SetTopMargin(0.1);
