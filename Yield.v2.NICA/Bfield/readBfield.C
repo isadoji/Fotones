@@ -1,4 +1,4 @@
-Int_t nbin = 50;// #events
+Int_t nbin = 200;// #events
 Int_t xmin = 0;// #events
 Double_t xmax = 0.5;// #events
 Float_t norm = nbin/(TMath::Abs(xmin)+TMath::Abs(xmax));
@@ -39,34 +39,28 @@ Int_t entries = BfieldT->GetEntries();
     for (Int_t j =0; j< nT;j++){
     BfieldT->GetEntry(j);
     //cout << timeT[j] << endl; 
-    for(Int_t k =0;k<=5;k++){
+    
+    for(Int_t k =0;k<=50;k++){
     Float_t step = k*0.01; 
-    if(timeT[k] <= step){
-    eB[k] = eBT[k];
-    V[k] = VT[k];
-
+    if(timeT[j] <= step){
+    eB[k] += eBT[j];
+    V[k] += VT[j];
     tau[k] = step;
-    cout << step << " " << eB[k] << endl;
+    
+    //cout << tau[k] << " " << eBT[k] << endl;
     }
-  
     }
-     
+    
+
   }
-  }
+     }
   for(Int_t l =0;l<=50;l++){
-     cout << tau[l] << " " << eB[l] << " " << V[l] << endl;
+    cout << " " << tau[l] << " " << eB[l] << " " << V[l] << endl;
 
     eBH->Fill(tau[l],eB[l]);
     VH->Fill(tau[l],V[l]);
   }
   
-  /*cout << tau1 << " " << eB1/n1 << " " << V1 << " " << n1 << endl;
-  cout << tau2 << " " << eB2 << " " << V2 << " " << n2 << endl;
-  cout << tau3 << " " << eB3 << " " << V3 << " " << n3 << endl;
-  cout << tau4 << " " << eB4 << " " << V4 << " " << n4 << endl;
-  cout << tau5 << " " << eB5 << " " << V5 << " " << n5 << endl;
- */
-
   TCanvas* c1 = new TCanvas("c1","UrQMD test example",800,800);
   //gStyle->SetOptStat(false);
   c1->SetRightMargin(0.0465116);
